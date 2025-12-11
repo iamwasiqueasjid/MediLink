@@ -4,23 +4,44 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:old": "concurrently \"npm run dev:frontend\" \"npm run dev:services\"",
+    "dev:frontend": "next dev",
+    "dev:services": "concurrently \"npm run dev:auth\" \"npm run dev:appointment\" \"npm run dev:notification\"",
+    "dev:auth": "tsx watch backend/services/auth/index.ts",
+    "dev:appointment": "tsx watch backend/services/appointment/index.ts",
+    "dev:notification": "tsx watch backend/services/notification/index.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "eventemitter3": "^5.0.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.3.0",
     "next": "16.0.8",
     "react": "19.2.1",
     "react-dom": "19.2.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^8.2.2",
     "eslint": "^9",
     "eslint-config-next": "16.0.8",
     "tailwindcss": "^4",
+    "tsx": "^4.7.0",
     "typescript": "^5"
   }
 }
