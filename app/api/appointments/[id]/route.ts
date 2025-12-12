@@ -38,16 +38,35 @@ export async function PATCH(
     const { db } = await connectToDatabase();
     const appointmentsCollection = db.collection('appointments');
 
+    console.log('Doctor trying to update appointment:', {
+      appointmentId: id,
+      doctorUserId: user.userId,
+      requestedStatus: status,
+    });
+
     // First check if appointment exists and belongs to this doctor
     const appointment = await appointmentsCollection.findOne({
       _id: new ObjectId(id),
-      doctorId: user.userId,
+    });
+
+    console.log('Found appointment:', {
+      found: !!appointment,
+      appointmentDoctorId: appointment?.doctorId,
+      doctorUserId: user.userId,
+      match: appointment?.doctorId === user.userId,
     });
 
     if (!appointment) {
       return NextResponse.json(
-        { error: 'Appointment not found or you do not have permission' },
+        { error: 'Appointment not found' },
         { status: 404 }
+      );
+    }
+
+    if (appointment.doctorId !== user.userId) {
+      return NextResponse.json(
+        { error: 'You do not have permission to update this appointment' },
+        { status: 403 }
       );
     }
 
