@@ -3,6 +3,9 @@ import { connectToDatabase } from '@/backend/shared/database';
 import { getAuthUser } from '../../lib/auth';
 import { ObjectId } from 'mongodb';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -169,4 +172,16 @@ export async function DELETE(
       { status: 500 }
     );
   }
+}
+
+// Add a GET handler for testing
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  return NextResponse.json({ 
+    message: 'Route is working',
+    appointmentId: id 
+  });
 }
