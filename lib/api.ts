@@ -14,12 +14,23 @@ async function apiCall(url: string, options: RequestInit = {}) {
     },
   });
 
-  const data = await response.json();
-
+  // Check content type before parsing
+  const contentType = response.headers.get('content-type');
+  
   if (!response.ok) {
-    throw new Error(data.error || 'API request failed');
+    // If response is JSON, parse it
+    if (contentType && contentType.includes('application/json')) {
+      const data = await response.json();
+      throw new Error(data.error || `Request failed with status ${response.status}`);
+    } else {
+      // If response is HTML or other, show status
+      const text = await response.text();
+      console.error('Non-JSON error response:', text.substring(0, 200));
+      throw new Error(`Request failed with status ${response.status}`);
+    }
   }
 
+  const data = await response.json();
   return data;
 }
 
