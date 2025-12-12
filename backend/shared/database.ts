@@ -15,13 +15,18 @@ let cachedDb: Db | null = null;
 
 export async function connectToDatabase() {
   if (cachedClient && cachedDb) {
+    console.log('♻️ Using cached MongoDB connection');
     return { client: cachedClient, db: cachedDb };
   }
 
   console.log('🔌 Connecting to MongoDB...');
   console.log('📍 URI:', MONGODB_URI.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@'));
   
-  const client = await MongoClient.connect(MONGODB_URI);
+  const client = await MongoClient.connect(MONGODB_URI, {
+    serverSelectionTimeoutMS: 10000, // 10 seconds timeout
+    connectTimeoutMS: 10000,
+  });
+  
   const db = client.db(DB_NAME);
   
   console.log('✅ Connected to database:', DB_NAME);
