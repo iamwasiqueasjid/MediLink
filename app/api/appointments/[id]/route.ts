@@ -35,40 +35,47 @@ export async function PATCH(
     }
 
     const { id } = await params;
+    
+    console.log('=== PATCH Appointment Request ===');
+    console.log('Appointment ID:', id);
+    console.log('Doctor User ID:', user.userId);
+    console.log('Status:', status);
+    
     const { db } = await connectToDatabase();
     const appointmentsCollection = db.collection('appointments');
 
-    console.log('Doctor trying to update appointment:', {
-      appointmentId: id,
-      doctorUserId: user.userId,
-      requestedStatus: status,
-    });
-
-    // First check if appointment exists and belongs to this doctor
+    // Find the appointment first
     const appointment = await appointmentsCollection.findOne({
       _id: new ObjectId(id),
     });
 
-    console.log('Found appointment:', {
-      found: !!appointment,
-      appointmentDoctorId: appointment?.doctorId,
-      doctorUserId: user.userId,
-      match: appointment?.doctorId === user.userId,
+    console.log('Appointment found:', {
+      exists: !!appointment,
+      doctorId: appointment?.doctorId,
+      doctorIdType: typeof appointment?.doctorId,
+      userIdType: typeof user.userId,
+      areEqual: appointment?.doctorId === user.userId,
+      stringComparison: String(appointment?.doctorId) === String(user.userId),
     });
 
     if (!appointment) {
+      console.log('ERROR: Appointment not found');
       return NextResponse.json(
         { error: 'Appointment not found' },
         { status: 404 }
       );
     }
 
-    if (appointment.doctorId !== user.userId) {
+    // Compare IDs as strings to handle any ObjectId vs string issues
+    if (String(appointment.doctorId) !== String(user.userId)) {
+      console.log('ERROR: Permission denied - IDs do not match');
       return NextResponse.json(
         { error: 'You do not have permission to update this appointment' },
         { status: 403 }
       );
     }
+
+    console.log('Permission check passed, updating appointment...');
 
     // Update the appointment
     const result = await appointmentsCollection.findOneAndUpdate(
